@@ -1,0 +1,17 @@
+[
+  {
+    "zoneNumber": 1,
+    "stations": [
+      "A",
+      "B"
+    ]
+  },
+  {
+    "zoneNumber": 2,
+    "stations": [
+      "C",
+      "D",
+      "E"
+    ]
+  }
+]
