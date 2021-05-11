@@ -22,11 +22,10 @@ import java.util.stream.Collectors;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-
 public class PricingProcessor {
 
     private static final Charset ENCODING = UTF_8;
-    public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private final File input;
     private final File output;
     private final JourneyEvaluator journeyEvaluator = new JourneyEvaluator();
@@ -59,25 +58,14 @@ public class PricingProcessor {
     private CustomerSummaries groupTapsByCustomerId(Taps taps) {
         List<Tap> tapList = taps.getTaps();
 
-        List<Integer> customersId = getCustomersId(tapList);
-
-        var customerSummaries = initCustomerSummaries(customersId);
+        var customerSummaries = initCustomerSummaries(tapList);
 
         for (CustomerSummary customerSummary : customerSummaries.getCustomerSummaries()) {
 
             List<Tap> customerTaps = getTapsFromCustomer(tapList, customerSummary);
 
-            if (haveOddNumberOfTap(customerTaps)) {
-                throw new DataException(customerSummary.getCustomerId());
-            }
-
             for (var i = 0; i < customerTaps.size(); i = i + 2) {
-                var departure = customerTaps.get(i);
-                var arrival = customerTaps.get(i + 1);
-
-                var trip = buildTrip(departure, arrival);
-
-                customerSummary.getTrips().add(trip);
+                addTripToSummary(customerSummary, customerTaps, i);
             }
             customerSummary.setTotalCostInCents(sumTripsCost(customerSummary));
         }
@@ -85,8 +73,47 @@ public class PricingProcessor {
         return customerSummaries;
     }
 
-    private int sumTripsCost(CustomerSummary customerSummary) {
-        return customerSummary.getTrips().stream().mapToInt(Trip::getCostInCents).sum();
+    private CustomerSummaries initCustomerSummaries(List<Tap> tapList) {
+        List<Integer> customersId = tapList.stream()
+                .collect(uniqueCustomerID());
+
+        var customerSummaries = new CustomerSummaries();
+        customerSummaries.setCustomerSummaries(new ArrayList<>());
+        for (Integer id : customersId) {
+            var customer = new CustomerSummary();
+            customer.setCustomerId(id);
+            customer.setTrips(new ArrayList<>());
+            customerSummaries.getCustomerSummaries().add(customer);
+        }
+        return customerSummaries;
+    }
+
+    private List<Tap> getTapsFromCustomer(List<Tap> tapList, CustomerSummary customerSummary) {
+        List<Tap> customerTap = tapList.stream()
+                .filter(tap -> isTapFromCustomer(customerSummary, tap))
+                .sorted(compareByTime)
+                .collect(Collectors.toList());
+
+        if (haveOddNumberOfTap(customerTap)) {
+            throw new DataException(customerSummary.getCustomerId());
+        }
+
+        return customerTap;
+    }
+
+    private boolean isTapFromCustomer(CustomerSummary customerSummary, Tap tap) {
+        return tap.getCustomerId() == customerSummary.getCustomerId();
+    }
+
+    private boolean haveOddNumberOfTap(List<Tap> customerTaps) {
+        return customerTaps.size() % 2 != 0;
+    }
+
+    private void addTripToSummary(CustomerSummary customerSummary, List<Tap> customerTaps, int i) {
+        var departure = customerTaps.get(i);
+        var arrival = customerTaps.get(i + 1);
+        var trip = buildTrip(departure, arrival);
+        customerSummary.getTrips().add(trip);
     }
 
     private Trip buildTrip(Tap departure, Tap arrival) {
@@ -101,27 +128,11 @@ public class PricingProcessor {
         return trip;
     }
 
-    private boolean haveOddNumberOfTap(List<Tap> customerTaps) {
-        return customerTaps.size() % 2 != 0;
+    private int sumTripsCost(CustomerSummary customerSummary) {
+        return customerSummary.getTrips().stream().mapToInt(Trip::getCostInCents).sum();
     }
 
-    private List<Tap> getTapsFromCustomer(List<Tap> tapList, CustomerSummary customerSummary) {
-        return tapList.stream()
-                .filter(tap -> isTapFromCustomer(customerSummary, tap))
-                .sorted(compareByTime)
-                .collect(Collectors.toList());
-    }
-
-    private boolean isTapFromCustomer(CustomerSummary customerSummary, Tap tap) {
-        return tap.getCustomerId() == customerSummary.getCustomerId();
-    }
-
-    protected List<Integer> getCustomersId(List<Tap> tapList) {
-        return tapList.stream()
-                .collect(uniqueCustomerID());
-    }
-
-    public static <T> Collector<T, Set<Integer>, List<Integer>> uniqueCustomerID() {
+    private static <T> Collector<T, Set<Integer>, List<Integer>> uniqueCustomerID() {
         return Collector.of(
                 HashSet::new,
                 (result, item) -> result.add(((Tap) item).getCustomerId()),
@@ -132,17 +143,5 @@ public class PricingProcessor {
                 ArrayList::new,
                 Collector.Characteristics.CONCURRENT,
                 Collector.Characteristics.UNORDERED);
-    }
-
-    private CustomerSummaries initCustomerSummaries(List<Integer> customersId) {
-        var ret = new CustomerSummaries();
-        ret.setCustomerSummaries(new ArrayList<>());
-        for (Integer id : customersId) {
-            var customer = new CustomerSummary();
-            customer.setCustomerId(id);
-            customer.setTrips(new ArrayList<>());
-            ret.getCustomerSummaries().add(customer);
-        }
-        return ret;
     }
 }

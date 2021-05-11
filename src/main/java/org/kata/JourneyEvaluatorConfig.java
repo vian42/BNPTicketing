@@ -2,14 +2,12 @@ package org.kata;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import org.apache.commons.io.FileUtils;
+import org.kata.exception.ConfigurationImportException;
 import org.kata.model.process.FactJourney;
 import org.kata.model.process.Journey;
 import org.kata.model.process.Zone;
-import org.kata.exception.ConfigurationImportException;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +15,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class JourneyEvaluatorConfig {
 
-    public static final String DELIMITER = ",";
+    private static final String DELIMITER = ",";
     private final ArrayList<Zone> zones;
     private final ArrayList<FactJourney> pricingBase;
 
@@ -25,12 +23,18 @@ public class JourneyEvaluatorConfig {
         try {
             this.zones = importZonesConfiguration(zoneConfigFile);
             this.pricingBase = importPricingConfiguration(pricingConfigFile);
-        } catch (URISyntaxException | IOException e) {
+        } catch (IOException e) {
             throw new ConfigurationImportException(e);
         }
     }
 
-    private ArrayList<FactJourney> importPricingConfiguration(String fileName) throws IOException, URISyntaxException {
+    private ArrayList<Zone> importZonesConfiguration(String fileName) {
+        var input = getFileFromResource(fileName);
+        Reader reader = new InputStreamReader(input, UTF_8);
+        return new Gson().fromJson(reader, new TypeToken<List<Zone>>() {}.getType());
+    }
+
+    private ArrayList<FactJourney> importPricingConfiguration(String fileName) throws IOException {
         ArrayList<FactJourney> factJourneys = new ArrayList<>();
         var inputStream = getFileFromResource(fileName);
 
@@ -52,13 +56,6 @@ public class JourneyEvaluatorConfig {
             }
         }
         return factJourneys;
-    }
-
-    private ArrayList<Zone> importZonesConfiguration(String fileName) throws URISyntaxException, IOException {
-        var input = getFileFromResource(fileName);
-        Reader reader = new InputStreamReader(input, UTF_8);
-        return new Gson().fromJson(reader, new TypeToken<List<Zone>>() {
-        }.getType());
     }
 
     private InputStream getFileFromResource(String fileName) {
