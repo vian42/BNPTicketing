@@ -30,4 +30,5 @@ public class CustomerSummary {
     public void setTrips(List<Trip> value) {
         this.trips = value;
     }
+
 }

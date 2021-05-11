@@ -13,13 +13,12 @@ public class Main {
         } else {
             executeTheProcess(args);
         }
-        
     }
 
     private static void executeTheProcess(String[] args) {
         var input = new File(args[0]);
         var output = new File(args[1]);
-        PricingProcessor processor = new PricingProcessor(input,output);
+        var processor = new PricingProcessor(input,output);
         try {
             processor.process();
         } catch (IOException e) {
