@@ -4,7 +4,7 @@ Our company has recently bought a train company. The trains run between train st
 
 Pricing is dependent upon:
 
-1. Witch zone(s) you travel between.
+1. Which zone(s) you travel between.
 2. What train stations are situated on a zone boundary, say zones 2 and zone 3, these have a specific pricing rule. The customer is charged the lowest fare, for instance if you are travelling from zone 1 to a station on the boundary of zone 2 and 3 then you will be charged the fare of zone 1 to zone 2.
 3. You are charged per trip.
 
@@ -129,7 +129,7 @@ For each of the customers' trips we output the following:
 3) We are looking for a professional object-oriented submission in Java or Kotlin, with unit tests which demonstrates your skills, of how you would deliver a project at work. An important point is it must build in any IDE by using an either gradle or maven to define the build process and any dependencies. If we cannot build it, it will fail.
 4) We expect your main method to take 2 input parameters, the first is the input file path, and the second is the output file path.  No other inputs should be required to run your program.
 
-"""[Notes if invited to interview]
+##[Notes if invited to interview]
 1) You will be given a coding test based on your submission, then you will be asked technical questions.
 2) The interview will be conducted in English, as we work globally communicating mainly in English.  We all find interviews stressful, and there will be a developer present who can speak in fluent French if we need to translate specifics.
 

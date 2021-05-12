@@ -97,7 +97,6 @@ public class PricingProcessor {
         if (haveOddNumberOfTap(customerTap)) {
             throw new DataException(customerSummary.getCustomerId());
         }
-
         return customerTap;
     }
 
