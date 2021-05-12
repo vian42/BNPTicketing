@@ -3,8 +3,8 @@ package org.kata.model.process;
 import java.util.List;
 
 public class Zone {
-    private Integer zoneNumber;
-    private List<String> stations;
+    private final Integer zoneNumber;
+    private final List<String> stations;
 
     public Zone(Integer zoneNumber, List<String> stations) {
         this.zoneNumber = zoneNumber;

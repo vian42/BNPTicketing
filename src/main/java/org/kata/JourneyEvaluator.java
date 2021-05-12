@@ -1,7 +1,7 @@
 package org.kata;
 
 import org.kata.model.input.Tap;
-import org.kata.model.process.FactJourney;
+import org.kata.model.process.InvoicedJourney;
 import org.kata.model.process.Journey;
 import org.kata.model.process.Zone;
 
@@ -19,7 +19,13 @@ public class JourneyEvaluator {
         this.config = new JourneyEvaluatorConfig("zonesStationsList.json", "zoneToZonePrice.csv");
     }
 
-    public FactJourney calculatePrice(Tap departure, Tap arrival) {
+    /**
+     * For a given trip, return t
+     * @param departure
+     * @param arrival
+     * @return
+     */
+    public InvoicedJourney calculatePrice(Tap departure, Tap arrival) {
         List<Zone> possibleStartingZones = getZone(departure.getStation());
         List<Zone> possibleArrivalZones = getZone(arrival.getStation());
         List<Journey> applicableJourneys = getApplicableJourneys(possibleStartingZones, possibleArrivalZones);
@@ -39,7 +45,7 @@ public class JourneyEvaluator {
         return ret;
     }
 
-    private FactJourney getTheCheapestJourney(List<Journey> applicableJourneys) {
+    private InvoicedJourney getTheCheapestJourney(List<Journey> applicableJourneys) {
         return config.getPricingBase().stream()
                 .filter(data -> applicableJourneys.contains(data.getJourney()))
                 .min(Comparator.naturalOrder())

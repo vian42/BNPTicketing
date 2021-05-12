@@ -10,7 +10,7 @@ import org.kata.model.input.Taps;
 import org.kata.model.output.CustomerSummaries;
 import org.kata.model.output.CustomerSummary;
 import org.kata.model.output.Trip;
-import org.kata.model.process.FactJourney;
+import org.kata.model.process.InvoicedJourney;
 
 import java.io.File;
 import java.io.IOException;
@@ -120,10 +120,10 @@ public class PricingProcessor {
         trip.setStationStart(departure.getStation());
         trip.setStationEnd(arrival.getStation());
         trip.setStartedJourneyAt(departure.getUnixTimestamp());
-        FactJourney journey = journeyEvaluator.calculatePrice(departure, arrival);
+        InvoicedJourney journey = journeyEvaluator.calculatePrice(departure, arrival);
         trip.setCostInCents(journey.getPrice());
-        trip.setZoneFrom(journey.getJourney().getDepartZone().getZoneNumber());
-        trip.setZoneTo(journey.getJourney().getArrivalZone().getZoneNumber());
+        trip.setZoneFrom(journey.getJourney().departZone().getZoneNumber());
+        trip.setZoneTo(journey.getJourney().arrivalZone().getZoneNumber());
         return trip;
     }
 

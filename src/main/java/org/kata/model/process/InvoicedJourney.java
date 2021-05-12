@@ -2,11 +2,11 @@ package org.kata.model.process;
 
 import java.util.Objects;
 
-public class FactJourney implements Comparable<FactJourney> {
+public class InvoicedJourney implements Comparable<InvoicedJourney> {
     private final Journey journey;
     private final Integer price;
 
-    public FactJourney(Journey journey, Integer price) {
+    public InvoicedJourney(Journey journey, Integer price) {
         this.journey = journey;
         this.price = price;
     }
@@ -15,7 +15,7 @@ public class FactJourney implements Comparable<FactJourney> {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FactJourney that = (FactJourney) o;
+        InvoicedJourney that = (InvoicedJourney) o;
         return journey.equals(that.journey) && price.equals(that.price);
     }
 
@@ -25,7 +25,7 @@ public class FactJourney implements Comparable<FactJourney> {
     }
 
     @Override
-    public int compareTo(FactJourney o) {
+    public int compareTo(InvoicedJourney o) {
         return this.price.compareTo(o.price);
     }
 

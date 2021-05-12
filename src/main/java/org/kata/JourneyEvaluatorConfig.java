@@ -3,7 +3,7 @@ package org.kata;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.kata.exception.ConfigurationImportException;
-import org.kata.model.process.FactJourney;
+import org.kata.model.process.InvoicedJourney;
 import org.kata.model.process.Journey;
 import org.kata.model.process.Zone;
 
@@ -17,7 +17,7 @@ public class JourneyEvaluatorConfig {
 
     private static final String DELIMITER = ",";
     private final ArrayList<Zone> zones;
-    private final ArrayList<FactJourney> pricingBase;
+    private final ArrayList<InvoicedJourney> pricingBase;
 
     public JourneyEvaluatorConfig(String zoneConfigFile, String pricingConfigFile) {
         try {
@@ -28,14 +28,25 @@ public class JourneyEvaluatorConfig {
         }
     }
 
+    /**
+     * Import the list of zones with their stations
+     * @param fileName json file to import
+     * @return the list of zones from the file
+     */
     private ArrayList<Zone> importZonesConfiguration(String fileName) {
         var input = getFileFromResource(fileName);
         Reader reader = new InputStreamReader(input, UTF_8);
         return new Gson().fromJson(reader, new TypeToken<List<Zone>>() {}.getType());
     }
 
-    private ArrayList<FactJourney> importPricingConfiguration(String fileName) throws IOException {
-        ArrayList<FactJourney> factJourneys = new ArrayList<>();
+    /**
+     * Import the price for each kind a journey
+     * @param fileName csv file with the pricing
+     * @return the list of journey with their price
+     * @throws IOException from the BufferedReader
+     */
+    private ArrayList<InvoicedJourney> importPricingConfiguration(String fileName) throws IOException {
+        ArrayList<InvoicedJourney> invoicedJourneys = new ArrayList<>();
         var inputStream = getFileFromResource(fileName);
 
         try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
@@ -50,12 +61,12 @@ public class JourneyEvaluatorConfig {
                     var arrivalZone = getZoneWithNumber(i);
                     var journey = new Journey(departZone, arrivalZone);
                     var price = Integer.valueOf(columns[i]);
-                    factJourneys.add(new FactJourney(journey, price));
+                    invoicedJourneys.add(new InvoicedJourney(journey, price));
                 }
                 lineNumber++;
             }
         }
-        return factJourneys;
+        return invoicedJourneys;
     }
 
     private InputStream getFileFromResource(String fileName) {
@@ -67,13 +78,17 @@ public class JourneyEvaluatorConfig {
         return zones;
     }
 
-    public List<FactJourney> getPricingBase() {
+    public List<InvoicedJourney> getPricingBase() {
         return pricingBase;
     }
 
-    public Zone getZoneWithNumber(Integer zoneNNumber){
+    /**
+     * @param zoneNumber number of the expecting zone
+     * @return The zone corresponding to the given number
+     */
+    public Zone getZoneWithNumber(Integer zoneNumber){
         return zones.stream()
-                .filter(zone -> zone.getZoneNumber().equals(zoneNNumber))
+                .filter(zone -> zone.getZoneNumber().equals(zoneNumber))
                 .findFirst()
                 .orElseThrow();
     }

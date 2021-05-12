@@ -1,8 +1,8 @@
 package org.kata;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class JourneyEvaluatorConfigTest {
 
@@ -11,8 +11,8 @@ class JourneyEvaluatorConfigTest {
         JourneyEvaluatorConfig config = new JourneyEvaluatorConfig(
                 "zonesStationsList_test.json",
                 "zoneToZonePrice_test.csv");
-        assertEquals(2, config.getZones().size());
-        assertEquals(3,config.getZoneWithNumber(2).getStations().size());
-        assertEquals(4,config.getPricingBase().size());
+        assertThat(config.getZones().size()).isEqualTo(2);
+        assertThat(config.getZoneWithNumber(2).getStations().size()).isEqualTo(3);
+        assertThat(config.getPricingBase().size()).isEqualTo(4);
     }
 }
