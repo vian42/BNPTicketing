@@ -1,7 +1,5 @@
 package org.kata;
 
-
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -13,13 +11,17 @@ class PricingProcessorTest {
 
     @Test
     void should_return_customers_summaries_from_inputFile_and_create_an_output_json_file() throws IOException {
-        var inputFile = new File(getClass().getClassLoader().getResource("CandidateInputExample.json").getFile());
-        var outputFile = new File("result.json");
+        var inputFile = "CandidateInputExample.json";
+        //var expectedOutputFile = new File(getClass().getClassLoader().getResource("CandidateOutputExample.json").getFile());
+        var outputFileName = "result.json";
 
-        PricingProcessor processor = new PricingProcessor(inputFile,outputFile);
+        PricingProcessor processor = new PricingProcessor(inputFile, outputFileName);
 
         processor.process();
 
-        assertThat(outputFile).exists();
+        File file = new File(outputFileName);
+        assertThat(file).exists();
+        //assertThat(outputFile).hasSameTextualContentAs(expectedOutputFile);
+        file.delete();
     }
 }

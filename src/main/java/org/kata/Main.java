@@ -18,7 +18,7 @@ public class Main {
     private static void executeTheProcess(String[] args) {
         var input = new File(args[0]);
         var output = new File(args[1]);
-        var processor = new PricingProcessor(input,output);
+        var processor = new PricingProcessor(args[0],args[1]);
         try {
             processor.process();
         } catch (IOException e) {

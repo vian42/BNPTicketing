@@ -1,9 +1,5 @@
 package org.kata;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.kata.exception.DataException;
 import org.kata.model.input.Tap;
 import org.kata.model.input.Taps;
@@ -12,47 +8,30 @@ import org.kata.model.output.CustomerSummary;
 import org.kata.model.output.Trip;
 import org.kata.model.process.InvoicedJourney;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.Writer;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 public class PricingProcessor {
 
-    private static final Charset ENCODING = UTF_8;
-    private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
-    private final File input;
-    private final File output;
+    private final String input;
+    private final String output;
     private final JourneyEvaluator journeyEvaluator = new JourneyEvaluator();
     private static final Comparator<Tap> compareByTime = Comparator.comparing(Tap::getUnixTimestamp);
 
-    public PricingProcessor(File input, File output) {
+    public PricingProcessor(String input, String output) {
         this.input = input;
         this.output = output;
     }
 
     public void process() throws IOException {
-        var taps = parseInputFile();
+        var utils = new Utils();
+        Taps taps = utils.getDataFromJsonFile(input, Taps.class);
 
         CustomerSummaries result = groupTapsByCustomerId(taps);
 
-        writeOutputFile(result);
-    }
-
-    private Taps parseInputFile() throws IOException {
-        var content = FileUtils.readFileToString(input, ENCODING);
-        return GSON.fromJson(content, Taps.class);
-    }
-
-    private void writeOutputFile(CustomerSummaries result) throws IOException {
-        Writer writer = new FileWriterWithEncoding(output.getName(), ENCODING);
-        GSON.toJson(result, writer);
-        writer.close();
+        utils.writeDataInJsonFile(output, result);
     }
 
     private CustomerSummaries groupTapsByCustomerId(Taps taps) {

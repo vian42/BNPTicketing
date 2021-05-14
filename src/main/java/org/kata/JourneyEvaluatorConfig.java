@@ -1,23 +1,24 @@
 package org.kata;
 
-import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.kata.exception.ConfigurationImportException;
 import org.kata.model.process.InvoicedJourney;
 import org.kata.model.process.Journey;
 import org.kata.model.process.Zone;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class JourneyEvaluatorConfig {
 
     private static final String DELIMITER = ",";
     private final ArrayList<Zone> zones;
     private final ArrayList<InvoicedJourney> pricingBase;
+    public static final Utils UTILS = new Utils();
 
     public JourneyEvaluatorConfig(String zoneConfigFile, String pricingConfigFile) {
         try {
@@ -33,10 +34,8 @@ public class JourneyEvaluatorConfig {
      * @param fileName json file to import
      * @return the list of zones from the file
      */
-    private ArrayList<Zone> importZonesConfiguration(String fileName) {
-        var input = getFileFromResource(fileName);
-        Reader reader = new InputStreamReader(input, UTF_8);
-        return new Gson().fromJson(reader, new TypeToken<List<Zone>>() {}.getType());
+    private ArrayList<Zone> importZonesConfiguration(String fileName) throws FileNotFoundException {
+        return UTILS.getDataFromJsonFile(fileName,new TypeToken<List<Zone>>() {}.getType());
     }
 
     /**
@@ -47,7 +46,7 @@ public class JourneyEvaluatorConfig {
      */
     private ArrayList<InvoicedJourney> importPricingConfiguration(String fileName) throws IOException {
         ArrayList<InvoicedJourney> invoicedJourneys = new ArrayList<>();
-        var inputStream = getFileFromResource(fileName);
+        var inputStream = UTILS.getFileFromResource(fileName);
 
         try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String skipTheFirstLine = reader.readLine();
@@ -57,11 +56,7 @@ public class JourneyEvaluatorConfig {
             while ((line = reader.readLine()) != null) {
                 String[] columns = line.split(DELIMITER);
                 for (var i = 1; i < columns.length; i++) {
-                    var departZone = getZoneWithNumber(lineNumber);
-                    var arrivalZone = getZoneWithNumber(i);
-                    var journey = new Journey(departZone, arrivalZone);
-                    var price = Integer.valueOf(columns[i]);
-                    invoicedJourneys.add(new InvoicedJourney(journey, price));
+                    invoicedJourneys.add(createInvoicedJourney(lineNumber, columns[i], i));
                 }
                 lineNumber++;
             }
@@ -69,9 +64,12 @@ public class JourneyEvaluatorConfig {
         return invoicedJourneys;
     }
 
-    private InputStream getFileFromResource(String fileName) {
-        var classLoader = getClass().getClassLoader();
-        return classLoader.getResourceAsStream(fileName);
+    private InvoicedJourney createInvoicedJourney(int lineNumber, String column, int i) {
+        var departZone = getZoneWithNumber(lineNumber);
+        var arrivalZone = getZoneWithNumber(i);
+        var journey = new Journey(departZone, arrivalZone);
+        var price = Integer.valueOf(column);
+        return new InvoicedJourney(journey, price);
     }
 
     public List<Zone> getZones() {
