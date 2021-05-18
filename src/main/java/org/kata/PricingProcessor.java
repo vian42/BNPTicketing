@@ -26,7 +26,7 @@ public class PricingProcessor {
     }
 
     public void process() throws IOException {
-        var utils = new Utils();
+        var utils = new FileManager();
         Taps taps = utils.getDataFromJsonFile(input, Taps.class);
 
         CustomerSummaries result = groupTapsByCustomerId(taps);

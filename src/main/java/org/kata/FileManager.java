@@ -11,7 +11,7 @@ import java.nio.charset.Charset;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
-public class Utils {
+public class FileManager {
 
     public static final Charset ENCODING = UTF_8;
     public static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();

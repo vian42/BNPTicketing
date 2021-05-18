@@ -18,7 +18,7 @@ public class JourneyEvaluatorConfig {
     private static final String DELIMITER = ",";
     private final ArrayList<Zone> zones;
     private final ArrayList<InvoicedJourney> pricingBase;
-    public static final Utils UTILS = new Utils();
+    public static final FileManager FILE_MANAGER = new FileManager();
 
     public JourneyEvaluatorConfig(String zoneConfigFile, String pricingConfigFile) {
         try {
@@ -35,7 +35,7 @@ public class JourneyEvaluatorConfig {
      * @return the list of zones from the file
      */
     private ArrayList<Zone> importZonesConfiguration(String fileName) throws FileNotFoundException {
-        return UTILS.getDataFromJsonFile(fileName,new TypeToken<List<Zone>>() {}.getType());
+        return FILE_MANAGER.getDataFromJsonFile(fileName,new TypeToken<List<Zone>>() {}.getType());
     }
 
     /**
@@ -46,7 +46,7 @@ public class JourneyEvaluatorConfig {
      */
     private ArrayList<InvoicedJourney> importPricingConfiguration(String fileName) throws IOException {
         ArrayList<InvoicedJourney> invoicedJourneys = new ArrayList<>();
-        var inputStream = UTILS.getFileFromResource(fileName);
+        var inputStream = FILE_MANAGER.getFileFromResource(fileName);
 
         try (var reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String skipTheFirstLine = reader.readLine();
