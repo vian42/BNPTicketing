@@ -47,6 +47,11 @@ public class PricingProcessor {
                 addTripToSummary(customerSummary, customerTaps, i);
             }
             customerSummary.setTotalCostInCents(sumTripsCost(customerSummary));
+
+            var maxPriceChecker = new MaxPriceChecker();
+            var fineChecker = new FineChecker();
+            List<PriceModificator> list = Arrays.asList(maxPriceChecker,fineChecker);
+            list.forEach(pc -> pc.applyChecking(customerSummary));
         }
 
         return customerSummaries;
@@ -68,23 +73,14 @@ public class PricingProcessor {
     }
 
     private List<Tap> getTapsFromCustomer(List<Tap> tapList, CustomerSummary customerSummary) {
-        List<Tap> customerTap = tapList.stream()
+        return tapList.stream()
                 .filter(tap -> isTapFromCustomer(customerSummary, tap))
                 .sorted(compareByTime)
                 .collect(Collectors.toList());
-
-        if (haveOddNumberOfTap(customerTap)) {
-            throw new DataException(customerSummary.getCustomerId());
-        }
-        return customerTap;
     }
 
     private boolean isTapFromCustomer(CustomerSummary customerSummary, Tap tap) {
         return tap.getCustomerId() == customerSummary.getCustomerId();
-    }
-
-    private boolean haveOddNumberOfTap(List<Tap> customerTaps) {
-        return customerTaps.size() % 2 != 0;
     }
 
     private void addTripToSummary(CustomerSummary customerSummary, List<Tap> customerTaps, int i) {
